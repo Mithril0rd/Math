@@ -1,0 +1,87 @@
+#include <cstdio>
+#include <cmath>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX_N = 31;
+const double EPS = 1e-7;
+
+double mat[MAX_N][MAX_N];
+bool l[MAX_N];
+int n;
+double ans[MAX_N];
+
+inline int gauss() {
+	int ret = 0, r = 0;
+	for (int i = 0; i < n; ++i) {
+		l[i] = false;
+	}
+	for (int i = 0; i < n; ++i) {
+		for (int j = r; j < n; ++j) {
+			if (fabs(mat[j][i]) > EPS) {
+				for (int k = i; k <= n; ++k) {
+					swap(mat[j][k], mat[r][k]);
+				}
+				break;
+			}
+		}
+		if (fabs(mat[r][i]) < EPS) {
+			++ret;
+			continue;
+		}
+		for (int j = 0; j < n; ++j) {
+			if (j != r && fabs(mat[j][i]) > EPS) {
+				double tmp = mat[j][i] / mat[r][i];
+				for (int k = i; k <= n; ++k) {
+					mat[j][k] -= tmp * mat[r][k];
+				}
+			}
+		}
+		l[i] = true; ++r;
+	}
+	for (int i = 0; i < n; ++i) {
+		if (l[i]) {
+			for (int j = 0; j < n; ++j) {
+				if (fabs(mat[j][i]) > EPS) {
+					ans[i] = mat[j][n] / mat[j][i];
+				}
+			}
+		}
+	}
+	for (int i = r; i < n; ++i) {
+		if (fabs(mat[i][n]) > EPS) return -1;
+	}
+	return 1 << n - r;
+}
+
+int main() {
+	int T;
+	scanf("%d", &T);
+	while (T-- > 0) {
+		memset(mat, 0, sizeof mat);
+		scanf("%d", &n);
+		for (int i = 0; i < n; ++i) {
+			scanf("%lf", &mat[i][n]);
+		}
+		for (int i = 0; i < n; ++i) {
+			double x;
+			scanf("%lf", &x);
+			mat[i][n] = x == mat[i][n] ? 0 : 1;
+			mat[i][i] = 1;
+		}
+
+		int u, v;
+		while (2 == scanf("%d%d", &u, &v)) {
+			if (u == 0 && v == 0) break;
+			--u, --v;
+			mat[v][u] = 1;
+		}
+
+		int x = gauss();
+		if (x == -1) puts("Oh,it's impossible~!!");
+		else printf("%d\n", x);
+	}
+	return 0;
+}
