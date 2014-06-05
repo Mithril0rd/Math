@@ -1,0 +1,102 @@
+#include <cstdio>
+#include <cstring>
+
+const int MAX_N = 31;
+const int MAX_M = 31;
+
+int nn, kk, mod;
+
+struct Matrix {
+//	int n, m;
+	int a[MAX_N][MAX_M];
+	void Clear() {
+		//n = m = 0;
+		memset(a, 0, sizeof a);
+	}
+	void One(int n) {
+		for (int i = 0; i < n; ++i) {
+			a[i][i] = 1;
+		}
+	}
+	
+	Matrix operator + (const Matrix &x) const {
+		Matrix temp;
+	//	temp.n = temp.m = nn;
+		for (int i = 0; i < nn; ++i) {
+			for (int j = 0; j < nn; ++j) {
+				temp.a[i][j] = (a[i][j] + x.a[i][j]) % mod;
+			}
+		}
+		return temp;
+	}
+	Matrix operator - (const Matrix &x) const {
+		Matrix temp;
+		//temp.n = temp.m = n;
+		for (int i = 0; i < nn; ++i) {
+			for (int j = 0; j < nn; ++j) {
+				temp.a[i][j] = a[i][j] - x.a[i][j];
+			}
+		}
+		return temp;
+	}
+	Matrix operator *(const Matrix &x) const {
+		Matrix temp;
+		temp.Clear();  
+	//	temp.n = temp.m = nn;
+		for (int i = 0; i < nn; ++i) {
+			for (int j = 0; j < nn; ++j) {
+				for (int k = 0; k < nn; ++k) {
+					temp.a[i][j] += a[i][k] * x.a[k][j] % mod;
+				}
+				temp.a[i][j] %= mod;
+			}
+		}
+		return temp;
+	} 
+};
+
+Matrix Pow(Matrix x, int n) {
+	Matrix y;
+	y.Clear();
+	y.One(nn);
+	while (n > 0) {
+		if (n & 1) y = y * x;
+		x = x * x;
+		n >>= 1; 
+	}
+	return y;
+}
+
+Matrix cal(Matrix x, int k) {
+	if (k == 1) return x;
+	Matrix E;
+	E.Clear();
+	E.One(nn);
+	if (k & 1) return (E + Pow(x, k >> 1)) * cal(x, k >> 1) + Pow(x, k);
+	else       return (E + Pow(x, k >> 1)) * cal(x, k >> 1);
+	
+}
+
+void solve(Matrix my) {
+	Matrix ans = cal(my, kk);
+	for (int i = 0; i < nn; ++i) {
+		for (int j = 0; j < nn; ++j) {
+			if (j == 0) printf("%d", ans.a[i][j]);
+			else printf(" %d", ans.a[i][j]);
+		}
+		puts("");
+	}
+}
+
+int main() {
+	while (3 == scanf("%d%d%d", &nn, &kk, &mod)) {
+		Matrix my; 
+		for (int i = 0; i < nn; ++i) {
+			for (int j = 0; j < nn; ++j) {
+				scanf("%d", &my.a[i][j]);
+			}
+		}
+		solve(my);
+	}
+	return 0;
+} 

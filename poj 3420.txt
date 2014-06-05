@@ -1,0 +1,90 @@
+#include cstdio
+#include cstring
+
+const int MAX_N = 101;
+const int MAX_M = 101;
+
+struct Matrix {
+	int n, m;
+	int a[MAX_N][MAX_M];
+	void Clear() {
+		n = 0, m = 0;
+		memset(a, 0, sizeof a);
+	}
+	void One(int n) {
+		for (int i = 0; i  n; ++i) {
+			a[i][i] = 1;
+		}
+	}
+	Matrix operator + (const Matrix &x) const {
+		Matrix temp;
+		temp.n = n, temp.m = m;
+		for (int i = 0; i  n; ++i) {
+			for (int j = 0; j  m; ++j) {
+				temp.a[i][j] = a[i][j] + x.a[i][j];
+			}
+		}
+		return temp;
+	}
+	Matrix operator - (const Matrix &x) const {
+		Matrix temp;
+		temp.n = n, temp.m = m;
+		for (int i = 0; i  n; ++i) {
+			for (int j = 0; j  m; ++j) {
+				temp.a[i][j] = a[i][j] - x.a[i][j];
+			}
+		}
+		return temp;
+	}
+	Matrix operator % (const int &m) const {
+		Matrix temp;	
+		temp.n = n, temp.m = n;
+		for (int i = 0; i  n; ++i) {
+			for (int j = 0; j  n; ++j) {
+				temp.a[i][j] = a[i][j] % m;
+			}
+		}
+		return temp;
+	}
+	Matrix operator (const Matrix &x) const {
+		Matrix temp;
+		temp.Clear();  
+		temp.n = n, temp.m = x.m;
+		for (int i = 0; i  n; ++i) {
+			for (int j = 0; j  x.m; ++j) {
+				for (int k = 0; k  m; ++k) {
+					temp.a[i][j] += a[i][k]  x.a[k][j];
+				}
+			}
+		}
+		return temp;
+	} 
+};
+
+int n, mod;
+
+void Pow(Matrix x, int n, Matrix &y) {
+	y.One(6);
+	y.n = y.m = 6;
+	while (n  0) {
+		if (n & 1) y = y  x % mod;
+		x = x  x % mod;
+		n = 1; 
+	}
+}
+
+int main() {
+	while (2 == scanf(%d%d, &n, &mod)) {
+		if (0 == n && 0 == mod) break;
+		Matrix my;
+		my.a[0][0] = my.a[0][1] = my.a[0][3] = my.a[0][4] = my.a[0][5] = 1;
+		my.a[1][0] = my.a[2][5] = my.a[3][0] = my.a[3][4] = my.a[4][0] = my.a[4][3] = 1;
+		my.a[5][0] = my.a[5][2] = 1;
+		my.n = my.m = 6;
+		Matrix ans;
+		ans.Clear();
+		Pow(my, n, ans);
+		printf(%dn, ans.a[0][0]);
+	}
+	return 0;
+} 
